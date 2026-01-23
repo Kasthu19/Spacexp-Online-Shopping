@@ -9,16 +9,37 @@ import EditProduct from './pages/EditProduct'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import Cart from './pages/Cart'
+import Checkout from './pages/Checkout';
+import AdminDashboard from './pages/AdminDashboard';
+import Success from './pages/Success'
+import Cancel from './pages/Cancel'
 
 
 
 
-const getAllProducts=async()=>{
-  let allProducts=[]
-  await axios.get('http://localhost:5000/product').then(res=>{
-    allProducts=res.data
-  })
-  return allProducts
+const getAllProducts = async () => {
+  try {
+    console.log('Fetching products from:', 'http://localhost:5000/product');
+    const response = await axios.get('http://localhost:5000/product');
+    console.log('Products received:', response.data);
+    console.log('Number of products:', response.data.length);
+    
+    // Check first product structure
+    if (response.data.length > 0) {
+      console.log('First product details:', {
+        name: response.data[0].name,
+        coverImage: response.data[0].coverImage,
+        variants: response.data[0].variants,
+        hasModel3d: response.data[0].variants?.[0]?.model3d
+      });
+    }
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    console.error('Error details:', error.response?.data || error.message);
+    return []; // Return empty array on error
+  }
 }
 
 const getMyProducts=async()=>{
@@ -41,6 +62,10 @@ const router=createBrowserRouter([
     {path:"/contact",element:<Contact/>},
     {path:"/editProduct/:id",element:<EditProduct/>},
     { path: "/cart", element: <Cart /> },
+    { path: "/checkout", element: <Checkout /> },
+    { path: "/admin", element: <AdminDashboard /> },
+    { path: "/pay/success", element: <Success /> },
+    { path: "/pay/cancel", element: <Cancel /> },
   ]}
   
 ])
