@@ -17,17 +17,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // ============ REMOVE CSP HEADERS (DEVELOPMENT FIX) ============
-// ============ FIX CONTENT SECURITY POLICY ============
-// ============ COMPLETELY DISABLE CSP ============
 app.use((req, res, next) => {
   // Don't set ANY CSP header at all
   next();
 });
 
 // ============ PROPER STATIC FILES CONFIGURATION ============
-// Serve images from public/images directory
 app.use('/images', express.static(path.join(__dirname, 'public', 'images')));
-// Also serve other static files if needed
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ============ DEBUG ROUTE ============
@@ -114,6 +110,7 @@ app.use('/cart', cartRouter);
 
 const PORT = process.env.PORT || 5000;
 
+// ✅ CORRECTED: Simple mongoose connection (remove the extra require lines)
 mongoose.connect('mongodb://localhost:27017/spaceXP')
     .then(() => {
         console.log('Connected to MongoDB');

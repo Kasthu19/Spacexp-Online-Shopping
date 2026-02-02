@@ -1,14 +1,19 @@
 const mongoose = require('mongoose');
 
+// ✅ UPDATED OrderItemSchema with delivery info
 const OrderItemSchema = new mongoose.Schema({
-  productId: { type: String, required: true },  // CHANGED to String
+  productId: { type: String, required: true },
   name: String,
   price: Number,
-  qty: Number
+  qty: Number,
+  // NEW fields for Task 9:
+  deliveryDate: String,    // NEW
+  deliveryTime: String,    // NEW
+  deliveryCharge: Number   // NEW
 });
 
 const OrderSchema = new mongoose.Schema({
-  userId: { type: String, required: true },  // CHANGED to String
+  userId: { type: String, required: true },
   items: [OrderItemSchema],
   subtotal: Number,
   discount: Number,

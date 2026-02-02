@@ -6,24 +6,42 @@ import { FaHeart } from "react-icons/fa6";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import ModelViewer3D from '../components/ModelViewer3D';
+import QuickView from './QuickView'; // Already correct
 
 export default function ProductItems() {
     const products = useLoaderData()
     const [allProducts, setAllProducts] = useState([])
+    const [filteredProducts, setFilteredProducts] = useState([])
+    const [selectedCategory, setSelectedCategory] = useState('All')
+    const [showQuickView, setShowQuickView] = useState(null)
     let path = window.location.pathname === "/myProduct" ? true : false
     let favItems = JSON.parse(localStorage.getItem("fav")) ?? []
     const [isFavProduct, setIsFavproduct] = useState(false)
     const [show3DForProduct, setShow3DForProduct] = useState(null)
     const navigate = useNavigate();
 
+    // Get unique categories
+    const categories = ['All', ...new Set(products.map(p => p.category).filter(Boolean))];
+
     useEffect(() => {
         if (products && products.length > 0) {
             setAllProducts(products);
+            setFilteredProducts(products);
             console.log('✅ Products loaded:', products.length);
         } else {
             console.log('❌ No products found');
         }
     }, [products])
+
+    // Filter by category
+    const filterCategory = (category) => {
+        setSelectedCategory(category);
+        if (category === 'All') {
+            setFilteredProducts(allProducts);
+        } else {
+            setFilteredProducts(allProducts.filter(p => p.category === category));
+        }
+    }
 
     const addToCart = async (product) => {
         try {
@@ -79,199 +97,173 @@ export default function ProductItems() {
 
     return (
         <>
-            <div className='card-container'>
-                {allProducts.length > 0 ? (
-                    allProducts.map((item, index) => {
-                        console.log("🛒 PRODUCT:", {
-                            name: item.name,
-                            coverImage: item.coverImage,
-                            price: item.price || item.basePrice
-                        });
+            {/* 3.5 Categories Filter */}
+            <div className="flex gap-3 mb-4 flex-wrap">
+                {categories.map(cat => (
+                    <button 
+                        key={cat} 
+                        onClick={() => filterCategory(cat)} 
+                        className={`px-3 py-1 border rounded ${selectedCategory === cat ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+                    >
+                        {cat}
+                    </button>
+                ))}
+            </div>
 
-                        // ===== ADDED DEBUG CODE HERE =====
-                        console.log("🎯 3D CHECK for", item.name, ":", {
-                            hasVariants: !!item.variants,
-                            variantCount: item.variants?.length,
-                            model3d: item.variants?.[0]?.model3d,
-                            shouldShowButton: item.variants && item.variants[0]?.model3d
-                        });
-                        // ===== END DEBUG CODE =====
+            {/* 3.1 Display Products in 5 Items per Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {filteredProducts.length > 0 ? (
+                    filteredProducts.map((item, index) => {
+                        const firstVariant = item.variants && item.variants[0];
                         
                         return (
-                            <div key={index} className='card' style={{
-                                border: '1px solid #e0e0e0',
-                                borderRadius: '8px',
-                                padding: '15px',
-                                margin: '10px',
-                                backgroundColor: 'white',
-                                boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-                                width: '250px'
-                            }}>
-                                {/* IMAGE SECTION - FIXED */}
-                                <div style={{ 
-                                    height: '180px', 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    justifyContent: 'center', 
-                                    backgroundColor: '#f8f9fa',
-                                    borderRadius: '5px',
-                                    marginBottom: '15px',
-                                    overflow: 'hidden'
-                                }}>
-                                    {item.coverImage ? (
-                                        <img 
-                                            src={`http://localhost:5000/images/${item.coverImage}`}
-                                            alt={item.name}
-                                            style={{ 
-                                                width: '100%',
-                                                height: '100%',
-                                                objectFit: 'contain',
-                                                padding: '10px'
-                                            }}
-                                            onLoad={() => console.log('✅ Image loaded:', item.coverImage)}
-                                            onError={(e) => {
-                                                console.error('❌ Image failed:', item.coverImage);
-                                                e.target.style.display = 'none';
-                                                e.target.parentElement.innerHTML = `
-                                                    <div style="text-align: center; padding: 20px; color: #666;">
-                                                        <div style="font-size: 14px; margin-bottom: 5px;">📷 No Image</div>
-                                                        <div style="font-size: 11px; color: #999;">${item.coverImage}</div>
-                                                        <button onclick="window.open('http://localhost:5000/images/${item.coverImage}', '_blank')"
-                                                                style="margin-top: 10px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 3px; font-size: 11px;">
-                                                            Test Image URL
-                                                        </button>
-                                                    </div>
-                                                `;
-                                            }}
-                                        />
-                                    ) : (
-                                        <div style={{ color: '#999', textAlign: 'center' }}>
-                                            No Image Available
-                                        </div>
-                                    )}
-                                </div>
-                                
-                                {/* PRODUCT INFO */}
-                                <div className='card-body' style={{ padding: '0' }}>
-                                    <div className='title' style={{
-                                        fontSize: '16px',
-                                        fontWeight: 'bold',
-                                        marginBottom: '8px',
-                                        color: '#333'
-                                    }}>
-                                        {item.name}
-                                    </div>
-                                    
-                                    <div style={{
-                                        fontSize: '18px',
-                                        fontWeight: 'bold',
-                                        color: '#2ecc71',
-                                        marginBottom: '10px'
-                                    }}>
-                                        ${item.price || item.basePrice || 'N/A'}
-                                    </div>
-                                    
-                                    <div className='icons' style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        marginBottom: '10px'
-                                    }}>
-                                        <div className='timer' style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            fontSize: '12px',
-                                            color: '#666'
-                                        }}>
-                                            <BsStopwatchFill style={{ marginRight: '5px' }} />
-                                            {item.shippingTime || '2-3 days'}
-                                        </div>
-                                        
-                                        {(!path) ? (
-                                            <FaHeart 
-                                                onClick={() => favProduct(item)}
-                                                style={{ 
-                                                    color: (favItems.some(res => res._id === item._id)) ? "red" : "#ccc",
-                                                    fontSize: '18px',
-                                                    cursor: 'pointer'
-                                                }} 
+                            <div key={index} className='card border border-gray-300 rounded-lg p-3 bg-white shadow-sm hover:shadow-md transition-shadow'>
+                                {/* IMAGE & VIDEO SECTION WITH LINK TO PRODUCT DETAIL */}
+                                <Link to={`/product/${item._id}`}>
+                                    <div className="relative h-48 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden mb-3 cursor-pointer">
+                                        {item.coverImage ? (
+                                            <img 
+                                                src={`http://localhost:5000/images/${item.coverImage}`}
+                                                alt={item.name}
+                                                className="w-full h-full object-contain p-2 hover:opacity-90 transition-opacity"
+                                            />
+                                        ) : firstVariant?.images?.[0] ? (
+                                            <img 
+                                                src={firstVariant.images[0]}
+                                                alt={item.name}
+                                                className="w-full h-full object-cover hover:opacity-90 transition-opacity"
                                             />
                                         ) : (
-                                            <div className='action' style={{ display: 'flex', gap: '10px' }}>
-                                                <Link to={`/editProduct/${item._id}`} className="editIcon" style={{ color: '#3498db' }}>
-                                                    <FaEdit />
-                                                </Link>
-                                                <MdDelete onClick={() => onDelete(item._id)} className='deleteIcon' style={{ color: '#e74c3c', cursor: 'pointer' }} />
+                                            <div className="text-gray-400 text-center">
+                                                No Image
+                                            </div>
+                                        )}
+                                        
+                                        {/* 3.2 Product Video */}
+                                        {firstVariant?.video && (
+                                            <div className="mt-2">
+                                                <video controls className="w-full h-32 object-cover rounded" onClick={(e) => e.stopPropagation()}>
+                                                    <source src={firstVariant.video} type="video/mp4" />
+                                                    Your browser does not support the video tag.
+                                                </video>
                                             </div>
                                         )}
                                     </div>
-
-                                    {/* ACTION BUTTONS */}
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                        <button 
-                                            onClick={() => addToCart(item)} 
-                                            style={{ 
-                                                marginTop: "5px",
-                                                backgroundColor: "#3498db",
-                                                color: "white",
-                                                padding: "8px 12px",
-                                                borderRadius: "4px",
-                                                border: "none",
-                                                cursor: "pointer",
-                                                fontSize: "14px",
-                                                fontWeight: "bold",
-                                                width: "100%"
-                                            }}
-                                        >
-                                            Add to Cart
-                                        </button>
-                                        
-                                        {item.variants && item.variants[0]?.model3d && (
-                                            <button
-                                                onClick={() => setShow3DForProduct(show3DForProduct === item._id ? null : item._id)}
-                                                style={{ 
-                                                    backgroundColor: "#8B5CF6",
-                                                    color: "white",
-                                                    padding: "8px 12px",
-                                                    borderRadius: "4px",
-                                                    border: "none",
-                                                    cursor: "pointer",
-                                                    fontSize: "14px",
-                                                    fontWeight: "bold",
-                                                    width: "100%"
-                                                }}
-                                            >
-                                                {show3DForProduct === item._id ? 'Hide 3D View' : 'View in 3D'}
-                                            </button>
-                                        )}
+                                </Link>
+                                
+                                {/* PRODUCT INFO */}
+                                <div>
+                                    {/* Product Name with Link */}
+                                    <Link to={`/product/${item._id}`}>
+                                        <h3 className="text-lg font-semibold text-gray-800 line-clamp-1 hover:text-blue-600 cursor-pointer transition-colors">
+                                            {item.name}
+                                        </h3>
+                                    </Link>
+                                    
+                                    <div className="flex items-center justify-between mt-2">
+                                        <div className="text-xl font-bold text-green-600">
+                                            ${firstVariant?.price || item.price || 'N/A'}
+                                        </div>
+                                        <div className="flex items-center text-sm text-gray-500">
+                                            <BsStopwatchFill className="mr-1" />
+                                            {firstVariant?.deliveryTime || item.shippingTime || '2-3 days'}
+                                        </div>
                                     </div>
+                                    
+                                    {/* 3.2 Delivery Info */}
+                                    {firstVariant?.deliveryDate && (
+                                        <div className="mt-2 text-sm text-gray-600">
+                                            <div className="flex justify-between">
+                                                <span>Delivery:</span>
+                                                <span className="font-medium">
+                                                    {firstVariant.deliveryDate}, {firstVariant.deliveryTime}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Charge:</span>
+                                                <span className="font-medium">
+                                                    ${firstVariant.deliveryCharge || 'Free'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    {/* ACTION BUTTONS */}
+                                    <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
+                                        {!path ? (
+                                            <FaHeart 
+                                                onClick={() => favProduct(item)}
+                                                className={`cursor-pointer ${favItems.some(res => res._id === item._id) ? "text-red-500" : "text-gray-400"} hover:scale-110 transition-transform`}
+                                                size={20}
+                                            />
+                                        ) : (
+                                            <div className="flex gap-3">
+                                                <Link to={`/editProduct/${item._id}`} className="text-blue-500 hover:text-blue-700 transition-colors">
+                                                    <FaEdit />
+                                                </Link>
+                                                <MdDelete 
+                                                    onClick={() => onDelete(item._id)} 
+                                                    className="text-red-500 hover:text-red-700 cursor-pointer transition-colors"
+                                                />
+                                            </div>
+                                        )}
+                                        
+                                        <div className="flex gap-2">
+                                            <button 
+                                                onClick={() => addToCart(item)} 
+                                                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+                                            >
+                                                Add to Cart
+                                            </button>
+                                            
+                                            {/* Quick View Button */}
+                                            <button
+                                                onClick={() => setShowQuickView(item)}
+                                                className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+                                            >
+                                                Quick View
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* 3D View Button */}
+                                    {firstVariant?.model3d && (
+                                        <button
+                                            onClick={() => setShow3DForProduct(show3DForProduct === item._id ? null : item._id)}
+                                            className="w-full mt-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-2 rounded font-medium transition-all"
+                                        >
+                                            {show3DForProduct === item._id ? 'Hide 3D View' : 'View in 3D'}
+                                        </button>
+                                    )}
                                 </div>
-
+                                
                                 {/* 3D VIEWER */}
-                                {show3DForProduct === item._id && item.variants && item.variants[0]?.model3d && (
-                                    <div style={{ marginTop: "15px", padding: "10px", borderTop: "1px solid #ddd" }}>
-                                        <ModelViewer3D modelUrl={item.variants[0].model3d} />
+                                {show3DForProduct === item._id && firstVariant?.model3d && (
+                                    <div className="mt-3 pt-3 border-t border-gray-200">
+                                        <ModelViewer3D modelUrl={firstVariant.model3d} />
                                     </div>
                                 )}
                             </div>
                         )
                     })
                 ) : (
-                    <div style={{ textAlign: 'center', padding: '50px' }}>
-                        No products found.
+                    <div className="col-span-5 text-center py-10 text-gray-500">
+                        No products found in this category.
                     </div>
                 )}
             </div>
-            
-            <style jsx>{`
-                .card-container {
-                    display: flex;
-                    flex-wrap: wrap;
-                    justify-content: center;
-                    gap: 20px;
-                    padding: 20px;
-                }
-            `}</style>
+
+            {/* 3.3 Quick View Modal */}
+            {showQuickView && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                        <QuickView 
+                            product={showQuickView} 
+                            onClose={() => setShowQuickView(null)} 
+                        />
+                    </div>
+                </div>
+            )}
         </>
     )
 }

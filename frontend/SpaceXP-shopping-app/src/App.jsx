@@ -4,7 +4,7 @@ import {createBrowserRouter,RouterProvider} from "react-router-dom"
 import Home from './pages/Home'
 import MainNavigation from './components/MainNavigation'
 import axios from 'axios'
-import  AddSpacexpProduct  from './pages/AddSpacexpProduct'
+import AddSpacexpProduct from './pages/AddSpacexpProduct'
 import EditProduct from './pages/EditProduct'
 import About from './pages/About'
 import Contact from './pages/Contact'
@@ -13,9 +13,8 @@ import Checkout from './pages/Checkout';
 import AdminDashboard from './pages/AdminDashboard';
 import Success from './pages/Success'
 import Cancel from './pages/Cancel'
-
-
-
+import ProductDetail from './pages/ProductDetail'
+// ✅ ADD THIS IMPORT
 
 const getAllProducts = async () => {
   try {
@@ -66,6 +65,7 @@ const router=createBrowserRouter([
     { path: "/admin", element: <AdminDashboard /> },
     { path: "/pay/success", element: <Success /> },
     { path: "/pay/cancel", element: <Cancel /> },
+    { path: "/product/:id", element: <ProductDetail/> }, // ✅ ADD THIS ROUTE
   ]}
   
 ])
