@@ -6,7 +6,7 @@ import { FaHeart } from "react-icons/fa6";
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import ModelViewer3D from '../components/ModelViewer3D';
-import QuickView from './QuickView'; // Already correct
+import QuickView from './QuickView';
 
 export default function ProductItems() {
     const products = useLoaderData()
@@ -141,11 +141,25 @@ export default function ProductItems() {
                                         
                                         {/* 3.2 Product Video */}
                                         {firstVariant?.video && (
-                                            <div className="mt-2">
-                                                <video controls className="w-full h-32 object-cover rounded" onClick={(e) => e.stopPropagation()}>
-                                                    <source src={firstVariant.video} type="video/mp4" />
-                                                    Your browser does not support the video tag.
-                                                </video>
+                                            <div className="mt-2" onClick={(e) => e.stopPropagation()}>
+                                                {firstVariant.video.includes('youtube.com/embed') ? (
+                                                    // YouTube Embed
+                                                    <div className="relative w-full h-32">
+                                                        <iframe
+                                                            src={firstVariant.video}
+                                                            className="w-full h-full rounded"
+                                                            title="Product video"
+                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                            allowFullScreen
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    // Regular MP4 Video
+                                                    <video controls className="w-full h-32 object-cover rounded">
+                                                        <source src={firstVariant.video} type="video/mp4" />
+                                                        Your browser does not support the video tag.
+                                                    </video>
+                                                )}
                                             </div>
                                         )}
                                     </div>

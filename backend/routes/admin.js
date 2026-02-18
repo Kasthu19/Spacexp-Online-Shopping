@@ -4,6 +4,16 @@ const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+// ============ ADD THIS TEST ROUTE FIRST ============
+router.get('/test', (req, res) => {
+  console.log('✅ /api/admin/test route is working!');
+  res.json({ 
+    message: 'Admin route works!',
+    timestamp: new Date().toISOString(),
+    routes: ['/', '/create', '/:id', '/test']
+  });
+});
+
 function authorize(roles=[]){  
     return (req,res,next)=>{  
       let token = req.headers['authorization'] || req.headers['Authorization'];

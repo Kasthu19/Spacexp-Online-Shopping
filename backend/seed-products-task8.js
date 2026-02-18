@@ -9,28 +9,73 @@ async function seed() {
   await Product.deleteMany({});
   console.log('Cleared existing data');
   
-  // SAMPLE VIDEO URLs (free to use)
-  const sampleVideos = [
-    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
-    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
-    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
-    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
-  ];
+  // ✅ PRODUCT-SPECIFIC VIDEO URLs (not random)
+ const productVideos = {
+  // ✅ REAL PRODUCT VIDEOS (YouTube embed)
+  headphones: "https://www.youtube.com/embed/iUmNn6g__uY",
+  shoes: "https://www.youtube.com/embed/GhzVE7yHuhg", 
+  watch: "https://www.youtube.com/embed/lNOaCW2RqNA",
+  clock: "https://www.youtube.com/embed/VNXXk4s1jak",
+  bottle: "https://www.youtube.com/embed/-aaQ86j6rds",
+  bag: "https://www.youtube.com/embed/XNjQgzbUhKg",
+  default: "https://www.youtube.com/embed/iUmNn6g__uY"
+};
 
-  // Function to get random video
-  const getRandomVideo = () => sampleVideos[Math.floor(Math.random() * sampleVideos.length)];
+  // Function to get appropriate video based on product
+// Function to get appropriate video based on product
+const getProductVideo = (product) => {
+  const name = product.name.toLowerCase();
+  
+  // Electronics
+  if (name.includes('headphone') || name.includes('earphone')) return productVideos.headphones;
+  if (name.includes('watch') || name.includes('smartwatch')) return productVideos.watch;
+  if (name.includes('laptop') || name.includes('computer')) return productVideos.default;
+  
+  // Footwear
+  if (name.includes('shoe') || name.includes('sneaker') || 
+      name.includes('footwear') || name.includes('slipper')) return productVideos.shoes;
+  
+  // Fashion & Accessories
+  if (name.includes('bag') || name.includes('handbag') || name.includes('backpack')) return productVideos.bag;
+  if (name.includes('sunglass') || name.includes('glasses')) return productVideos.default;
+  if (name.includes('cap') || name.includes('hat')) return productVideos.default;
+  if (name.includes('jacket') || name.includes('coat')) return productVideos.default;
+  
+  // Home
+  if (name.includes('clock') || name.includes('alarm')) return productVideos.clock;
+  
+  // Sports
+  if (name.includes('bottle') || name.includes('water')) return productVideos.bottle;
+  if (name.includes('sports') || name.includes('outdoor')) return productVideos.default;
+  
+  // Kids & Toys
+  if (name.includes('baby') || name.includes('kid') || name.includes('child')) return productVideos.default;
+  if (name.includes('teddy') || name.includes('bear') || name.includes('toy')) return productVideos.default;
+  
+  // Furniture
+  if (name.includes('chair') || name.includes('table') || name.includes('furniture') || 
+      name.includes('cupboard') || name.includes('nightstand') || name.includes('bed')) return productVideos.default;
+  
+  // Kitchen
+  if (name.includes('mug') || name.includes('cup') || name.includes('kitchen')) return productVideos.default;
+  
+  // Stationery & Office
+  if (name.includes('pencil') || name.includes('pen') || name.includes('container')) return productVideos.default;
+  
+  // Pets
+  if (name.includes('cat') || name.includes('dog') || name.includes('pet')) return productVideos.default;
+  
+  // Phone
+  if (name.includes('phone') || name.includes('case')) return productVideos.default;
+  
+  return productVideos.default;
+};
   
   // Function to get random delivery date (next 7-14 days)
   const getRandomDeliveryDate = () => {
     const date = new Date();
     date.setDate(date.getDate() + Math.floor(Math.random() * 7) + 7);
-    return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+    return date.toISOString().split('T')[0];
   };
   
   // Function to get random delivery time
@@ -61,7 +106,7 @@ async function seed() {
           color: "Black",
           colorCode: "#000000",
           images: ["headphones-1.jpg", "headphones-2.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Premium Wireless Headphones" }), // ✅ Headphone-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 299.99,
           originalPrice: 349.99,
@@ -91,7 +136,7 @@ async function seed() {
           color: "Blue",
           colorCode: "#2563EB",
           images: ["shoes-1.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Running Shoes Pro" }), // ✅ Shoe-specific
           model3d: "https://modelviewer.dev/shared-assets/models/NeilArmstrong.glb",
           price: 89.99,
           originalPrice: 119.99,
@@ -119,7 +164,7 @@ async function seed() {
           color: "Black",
           colorCode: "#000000",
           images: ["watch-1.jpg", "watch-2.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Smart Watch Series X" }), // ✅ Watch-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 199.99,
           originalPrice: 249.99,
@@ -148,7 +193,7 @@ async function seed() {
           color: "White",
           colorCode: "#FFFFFF",
           images: ["clock-1.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Digital Alarm Clock" }), // ✅ Clock-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 24.99,
           originalPrice: 29.99,
@@ -176,7 +221,7 @@ async function seed() {
           color: "Silver",
           colorCode: "#C0C0C0",
           images: ["Water Bottle.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Insulated Water Bottle" }), // ✅ Bottle-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 34.99,
           originalPrice: 39.99,
@@ -205,7 +250,7 @@ async function seed() {
           color: "Brown",
           colorCode: "#8B4513",
           images: ["Hand Bag.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Leather Hand Bag" }), // ✅ Bag-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 79.99,
           originalPrice: 99.99,
@@ -233,7 +278,7 @@ async function seed() {
           color: "Blue",
           colorCode: "#3B82F6",
           images: ["Baby Winter Cap.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Baby Winter Cap" }), // ✅ Kid-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 14.99,
           originalPrice: 19.99,
@@ -261,7 +306,7 @@ async function seed() {
           color: "Pink",
           colorCode: "#EC4899",
           images: ["Kids Slippers.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Kids Slippers" }), // ✅ Shoe-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 12.99,
           originalPrice: 16.99,
@@ -289,7 +334,7 @@ async function seed() {
           color: "Black",
           colorCode: "#000000",
           images: ["Stylish Footwear.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Stylish Footwear" }), // ✅ Shoe-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 59.99,
           originalPrice: 79.99,
@@ -317,7 +362,7 @@ async function seed() {
           color: "Black",
           colorCode: "#000000",
           images: ["Sun Glasses.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Premium Sunglasses" }), // ✅ Sunglass-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 39.99,
           originalPrice: 49.99,
@@ -345,7 +390,7 @@ async function seed() {
           color: "Clear",
           colorCode: "#F0F8FF",
           images: ["Phone case.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Phone Case" }), // ✅ Phonecase-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 19.99,
           originalPrice: 24.99,
@@ -373,7 +418,7 @@ async function seed() {
           color: "Brown",
           colorCode: "#8B4513",
           images: ["Cupboard.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Wooden Cupboard" }), // ✅ Furniture-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 199.99,
           originalPrice: 249.99,
@@ -401,7 +446,7 @@ async function seed() {
           color: "White",
           colorCode: "#FFFFFF",
           images: ["Nightstands.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Bedside Nightstands" }), // ✅ Furniture-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 89.99,
           originalPrice: 119.99,
@@ -429,7 +474,7 @@ async function seed() {
           color: "Multi",
           colorCode: "#FF6B6B",
           images: ["Pencil Container.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Pencil Container" }), // ✅ Stationery-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 9.99,
           originalPrice: 14.99,
@@ -457,7 +502,7 @@ async function seed() {
           color: "Yellow",
           colorCode: "#FBBF24",
           images: ["Cat keychain.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Cat Keychain" }), // ✅ Toy/Accessory-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 7.99,
           originalPrice: 9.99,
@@ -485,7 +530,7 @@ async function seed() {
           color: "White",
           colorCode: "#FFFFFF",
           images: ["Coffee Mug.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Coffee Mug" }), // ✅ Kitchen-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 12.99,
           originalPrice: 16.99,
@@ -513,7 +558,7 @@ async function seed() {
           color: "Gray",
           colorCode: "#6B7280",
           images: ["Cat shaped bed.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Cat Shaped Bed" }), // ✅ Pet-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 29.99,
           originalPrice: 39.99,
@@ -541,7 +586,7 @@ async function seed() {
           color: "Pink",
           colorCode: "#F472B6",
           images: ["Kitty Rocking Chair.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Kitty Rocking Chair" }), // ✅ Furniture/Toy-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 49.99,
           originalPrice: 69.99,
@@ -569,7 +614,7 @@ async function seed() {
           color: "Brown",
           colorCode: "#92400E",
           images: ["tedy.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Teddy Bear" }), // ✅ Toy-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 19.99,
           originalPrice: 24.99,
@@ -597,7 +642,7 @@ async function seed() {
           color: "Black",
           colorCode: "#000000",
           images: ["laptop.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Gaming Laptop" }), // ✅ Laptop-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 1299.99,
           originalPrice: 1499.99,
@@ -626,7 +671,7 @@ async function seed() {
           color: "Blue",
           colorCode: "#1D4ED8",
           images: ["bag.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Travel Backpack" }), // ✅ Bag-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 49.99,
           originalPrice: 64.99,
@@ -654,7 +699,7 @@ async function seed() {
           color: "Black",
           colorCode: "#000000",
           images: ["cap.jpg"],
-          video: getRandomVideo(),
+          video: getProductVideo({ name: "Baseball Cap" }), // ✅ Cap-specific
           model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
           price: 17.99,
           originalPrice: 22.99,
@@ -685,7 +730,7 @@ async function seed() {
     // Link to products in same category
     for (let j = 0; j < productIds.length; j++) {
       if (i !== j && insertedProducts[i].category === insertedProducts[j].category) {
-        if (similarIds.length < 3) { // Max 3 similar products
+        if (similarIds.length < 3) {
           similarIds.push(productIds[j]);
         }
       }
@@ -703,7 +748,7 @@ async function seed() {
   }
   
   console.log('✅ Task 9 Seed data created successfully!');
-  console.log(`📹 Videos added to ${insertedProducts.length} products`);
+  console.log(`📹 Product-specific videos added to ${insertedProducts.length} products`);
   console.log(`🚚 Delivery info added to all products`);
   console.log(`🔄 Similar products linked within categories`);
   

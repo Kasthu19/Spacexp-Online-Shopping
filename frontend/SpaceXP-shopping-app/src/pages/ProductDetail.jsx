@@ -23,7 +23,6 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
         try {
             setLoading(true);
-            // ✅ CORRECT API URL FOR YOUR PROJECT
             const response = await axios.get(`http://localhost:5000/product/${id}`);
             setProduct(response.data);
             setLoading(false);
@@ -95,13 +94,27 @@ const ProductDetail = () => {
                     {/* Main Image/Video */}
                     <div className="mb-4 bg-gray-100 rounded-xl overflow-hidden">
                         {variant.video ? (
-                            <video 
-                                controls 
-                                className="w-full h-96 object-contain"
-                                poster={variant.images?.[0] || `http://localhost:5000/images/${product.coverImage}`}
-                            >
-                                <source src={variant.video} type="video/mp4" />
-                            </video>
+                            variant.video.includes('youtube.com/embed') ? (
+                                // YouTube Embed
+                                <div className="relative w-full h-96">
+                                    <iframe
+                                        src={variant.video}
+                                        className="w-full h-full"
+                                        title="Product video"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                    />
+                                </div>
+                            ) : (
+                                // Regular MP4 Video
+                                <video 
+                                    controls 
+                                    className="w-full h-96 object-contain"
+                                    poster={variant.images?.[0] || `http://localhost:5000/images/${product.coverImage}`}
+                                >
+                                    <source src={variant.video} type="video/mp4" />
+                                </video>
+                            )
                         ) : (
                             <img
                                 src={variant.images?.[0] || `http://localhost:5000/images/${product.coverImage}`}
